@@ -50,24 +50,43 @@ def data_populating(session):
     sale6 = Sale(price=3000, date_sale="2022-12-11", stock=stock6, count=60)
     session.add_all([sale1, sale2, sale3, sale4, sale5, sale6])
 
-# print(publisher1)
-# print(book1)
-# print(shop1)
-# print(stock1)
-# print(sale1)
 
 def sale_information(id_publisher=None, name_publisher=None):
-    book_name = session.query(Book).join(Publisher).filter(Publisher.id == id_publisher).all()
-    shop_name = session.query(Stock).join(Book).filter(Book.id_publisher == id_publisher).all()
-    sale_price = session.query(Sale).join(Stock).join(Book).filter(Book.id_publisher == id_publisher).all()
-    for i in range(len(book_name)):
-        print(f" {book_name[i].title} | {shop_name[i]} | {sale_price[i].price} | {sale_price[i].date_sale} ")
+    if id_publisher != None:
+        book_name = session.query(Book).join(Publisher).filter(Publisher.id == id_publisher).all()
+        shop_name = session.query(Stock).join(Book).filter(Book.id_publisher == id_publisher).all()
+        sale_price = session.query(Sale).join(Stock).join(Book).filter(Book.id_publisher == id_publisher).all()
+        for i in range(len(book_name)):
+            print(f" {book_name[i].title} | {shop_name[i]} | {sale_price[i].price} | {sale_price[i].date_sale} ")
+    elif name_publisher != None:
+        book_name = session.query(Book).join(Publisher).filter(Publisher.name == name_publisher).all()
+        shop_name = session.query(Stock).join(Book).join(Publisher).filter(Publisher.name == name_publisher).all()
+        sale_price = session.query(Sale).join(Stock).join(Book).join(Publisher).filter(Publisher.name == name_publisher).all()
+        for i in range(len(book_name)):
+            print(f" {book_name[i].title} | {shop_name[i]} | {sale_price[i].price} | {sale_price[i].date_sale} ")
+
+def input_info():
+    str_ = int(input("Введите цифру 1 или 2 для определения поля ввода: "))
+    if str_ == 1:
+        id = int(input("Введите айди писателя: "))
+        return id
+    elif str_ == 2:
+        name = input("Введите имя писателя: ")
+        return name
 
 if __name__ == "__main__":
     engine = data_connect()
     Session = sessionmaker(bind=engine)
     session = Session()
     data_populating(session)
-    sale_information(1)
+    # sale_information(1)
+    tmp = input_info()
+    if type(tmp) is int:
+        id = tmp
+        name = None
+    else:
+        name = tmp
+        id = None
+    sale_information(id, name)
     session.commit()
     session.close()
